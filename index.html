@@ -46,6 +46,41 @@
             background-color: #2980b9;
         }
 
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-item {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .stat-item[data-status="unread"] {
+            background-color: #f1c40f20;
+        }
+
+        .stat-item[data-status="reading"] {
+            background-color: #2ecc7120;
+        }
+
+        .stat-item[data-status="completed"] {
+            background-color: #3498db20;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
         .book-list {
             list-style: none;
             padding: 0;
@@ -99,11 +134,42 @@
         <button onclick="addBook()">Lägg till</button>
     </div>
 
+    <div class="stats">
+        <span class="stat-item" data-status="unread">
+            <span class="stat-label">Olästa:</span>
+            <span class="stat-value" id="unreadCount">0</span>
+        </span>
+        <span class="stat-item" data-status="reading">
+            <span class="stat-label">Läser:</span>
+            <span class="stat-value" id="readingCount">0</span>
+        </span>
+        <span class="stat-item" data-status="completed">
+            <span class="stat-label">Lästa:</span>
+            <span class="stat-value" id="completedCount">0</span>
+        </span>
+    </div>
+
     <ul class="book-list" id="bookList"></ul>
 
     <script>
         // Hämta böcker från localStorage eller skapa en tom array
         let books = JSON.parse(localStorage.getItem('books')) || [];
+
+        // Uppdatera statistik
+        function updateStats() {
+            const stats = books.reduce((acc, book) => {
+                acc[book.status]++;
+                return acc;
+            }, {
+                unread: 0,
+                reading: 0,
+                completed: 0
+            });
+
+            document.getElementById('unreadCount').textContent = stats.unread;
+            document.getElementById('readingCount').textContent = stats.reading;
+            document.getElementById('completedCount').textContent = stats.completed;
+        }
 
         // Rendera boklistan
         function renderBooks() {
@@ -129,8 +195,9 @@
                 bookList.appendChild(li);
             });
             
-            // Spara till localStorage
+            // Spara till localStorage och uppdatera statistik
             localStorage.setItem('books', JSON.stringify(books));
+            updateStats();
         }
 
         // Lägg till en ny bok
