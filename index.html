@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 700px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f5f5f5;
@@ -97,8 +97,23 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .book-title {
+        .book-info {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .book-title {
+            font-weight: 500;
+        }
+
+        .book-meta {
+            font-size: 0.9em;
+            color: #666;
+            display: flex;
+            gap: 15px;
+            align-items: center;
         }
 
         .book-status {
@@ -108,6 +123,7 @@
             cursor: pointer;
             border: none;
             background-color: #eee;
+            white-space: nowrap;
         }
 
         .book-status[data-status="unread"] {
@@ -123,6 +139,39 @@
         .book-status[data-status="completed"] {
             background-color: #3498db;
             color: white;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 2px;
+        }
+
+        .star {
+            cursor: pointer;
+            font-size: 20px;
+            color: #ddd;
+        }
+
+        .star.filled {
+            color: #f1c40f;
+        }
+
+        .completion-date {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .completion-date input[type="date"] {
+            padding: 3px 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .completion-date label {
+            white-space: nowrap;
         }
     </style>
 </head>
@@ -171,6 +220,52 @@
             document.getElementById('completedCount').textContent = stats.completed;
         }
 
+        // Formatera datum för input field (YYYY-MM-DD)
+        function formatDateForInput(date) {
+            return new Date(date).toISOString().split('T')[0];
+        }
+
+        // Skapa stjärnbetyg element
+        function createStarRating(book, index) {
+            const container = document.createElement('div');
+            container.className = 'star-rating';
+            
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('span');
+                star.className = 'star' + (i <= (book.rating || 0) ? ' filled' : '');
+                star.textContent = '★';
+                star.onclick = (e) => {
+                    e.stopPropagation();
+                    books[index].rating = i;
+                    renderBooks();
+                };
+                container.appendChild(star);
+            }
+            
+            return container;
+        }
+
+        // Skapa datum input element
+        function createDateInput(book, index) {
+            const container = document.createElement('div');
+            container.className = 'completion-date';
+            
+            const label = document.createElement('label');
+            label.textContent = 'Läst:';
+            
+            const input = document.createElement('input');
+            input.type = 'date';
+            input.value = formatDateForInput(book.completedDate || new Date());
+            input.onchange = (e) => {
+                books[index].completedDate = new Date(e.target.value).toISOString();
+                renderBooks();
+            };
+            
+            container.appendChild(label);
+            container.appendChild(input);
+            return container;
+        }
+
         // Rendera boklistan
         function renderBooks() {
             const bookList = document.getElementById('bookList');
@@ -180,9 +275,25 @@
                 const li = document.createElement('li');
                 li.className = 'book-item';
                 
+                const bookInfo = document.createElement('div');
+                bookInfo.className = 'book-info';
+                
                 const title = document.createElement('span');
                 title.className = 'book-title';
                 title.textContent = book.title;
+                
+                const meta = document.createElement('div');
+                meta.className = 'book-meta';
+                
+                if (book.status === 'completed') {
+                    meta.appendChild(createDateInput(book, index));
+                    meta.appendChild(createStarRating(book, index));
+                }
+                
+                bookInfo.appendChild(title);
+                if (meta.children.length > 0) {
+                    bookInfo.appendChild(meta);
+                }
                 
                 const statusButton = document.createElement('button');
                 statusButton.className = 'book-status';
@@ -190,7 +301,7 @@
                 statusButton.textContent = getStatusText(book.status);
                 statusButton.onclick = () => toggleStatus(index);
                 
-                li.appendChild(title);
+                li.appendChild(bookInfo);
                 li.appendChild(statusButton);
                 bookList.appendChild(li);
             });
@@ -221,8 +332,19 @@
             const currentStatus = books[index].status;
             const currentIndex = statusOrder.indexOf(currentStatus);
             const nextIndex = (currentIndex + 1) % statusOrder.length;
+            const newStatus = statusOrder[nextIndex];
             
-            books[index].status = statusOrder[nextIndex];
+            books[index].status = newStatus;
+            
+            // Lägg till datum när boken markeras som läst
+            if (newStatus === 'completed') {
+                books[index].completedDate = new Date().toISOString();
+            } else {
+                // Ta bort datum och betyg om boken inte längre är läst
+                delete books[index].completedDate;
+                delete books[index].rating;
+            }
+            
             renderBooks();
         }
 
