@@ -7,15 +7,20 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f5f5f5;
         }
 
-        h1 {
+        h1, h2 {
             color: #2c3e50;
             text-align: center;
+        }
+
+        h2 {
+            margin-top: 30px;
+            font-size: 1.5em;
         }
 
         .add-book {
@@ -44,6 +49,29 @@
 
         .add-book button:hover {
             background-color: #2980b9;
+        }
+
+        .view-switcher {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .view-button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #eee;
+            color: #666;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .view-button.active {
+            background-color: #3498db;
+            color: white;
         }
 
         .stats {
@@ -173,6 +201,143 @@
         .completion-date label {
             white-space: nowrap;
         }
+
+        .reading-graph {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        .graph-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            height: 200px;
+            padding: 20px 0;
+            overflow-x: auto;
+        }
+
+        .graph-bar {
+            flex: 0 0 60px;
+            background: #3498db;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            min-width: 60px;
+            transition: height 0.3s ease;
+        }
+
+        .graph-bar:hover {
+            background: #2980b9;
+        }
+
+        .graph-label {
+            position: absolute;
+            bottom: -25px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .graph-value {
+            position: absolute;
+            top: -20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .no-data-message {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        /* Panel view styles */
+        .panel-view {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .panel {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-height: 200px;
+        }
+
+        .panel-header {
+            font-size: 1.2em;
+            font-weight: 500;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid;
+        }
+
+        .panel[data-status="unread"] .panel-header {
+            border-color: #f1c40f;
+        }
+
+        .panel[data-status="reading"] .panel-header {
+            border-color: #2ecc71;
+        }
+
+        .panel[data-status="completed"] .panel-header {
+            border-color: #3498db;
+        }
+
+        .panel .book-item {
+            box-shadow: none;
+            border: 1px solid #eee;
+            cursor: move;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .panel .book-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .panel .book-item.dragging {
+            opacity: 0.5;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .panel-books {
+            min-height: 100px;
+        }
+
+        .panel.drag-over {
+            background-color: #f8f9fa;
+            box-shadow: 0 0 0 2px #3498db;
+        }
+
+        /* Hide/Show views */
+        .list-view, .panel-view {
+            display: none;
+        }
+
+        .list-view.active {
+            display: block;
+        }
+
+        .panel-view.active {
+            display: grid;
+        }
+
+        /* Hide status button in panel view */
+        .panel-view .book-status {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -198,11 +363,62 @@
         </span>
     </div>
 
-    <ul class="book-list" id="bookList"></ul>
+    <div class="reading-graph">
+        <h2>Lästa böcker över tid</h2>
+        <div id="graphContainer" class="graph-container">
+            <div class="no-data-message">Inga lästa böcker än</div>
+        </div>
+    </div>
+
+    <div class="view-switcher">
+        <button class="view-button active" data-view="list">Lista</button>
+        <button class="view-button" data-view="panel">Paneler</button>
+    </div>
+
+    <div class="list-view active">
+        <ul class="book-list" id="bookList"></ul>
+    </div>
+
+    <div class="panel-view">
+        <div class="panel" data-status="unread">
+            <div class="panel-header">Olästa</div>
+            <div class="panel-books"></div>
+        </div>
+        <div class="panel" data-status="reading">
+            <div class="panel-header">Läser</div>
+            <div class="panel-books"></div>
+        </div>
+        <div class="panel" data-status="completed">
+            <div class="panel-header">Klara</div>
+            <div class="panel-books"></div>
+        </div>
+    </div>
 
     <script>
-        // Hämta böcker från localStorage eller skapa en tom array
+        // Hämta böcker och vald vy från localStorage
         let books = JSON.parse(localStorage.getItem('books')) || [];
+        let currentView = localStorage.getItem('currentView') || 'list';
+        let draggedBook = null;
+
+        // Uppdatera vyn
+        function updateView(view) {
+            currentView = view;
+            localStorage.setItem('currentView', view);
+            
+            document.querySelectorAll('.view-button').forEach(button => {
+                button.classList.toggle('active', button.dataset.view === view);
+            });
+            
+            document.querySelector('.list-view').classList.toggle('active', view === 'list');
+            document.querySelector('.panel-view').classList.toggle('active', view === 'panel');
+            
+            renderBooks();
+        }
+
+        // Lägg till click handlers för vy-knapparna
+        document.querySelectorAll('.view-button').forEach(button => {
+            button.addEventListener('click', () => updateView(button.dataset.view));
+        });
 
         // Uppdatera statistik
         function updateStats() {
@@ -223,6 +439,50 @@
         // Formatera datum för input field (YYYY-MM-DD)
         function formatDateForInput(date) {
             return new Date(date).toISOString().split('T')[0];
+        }
+
+        // Formatera månad för grafen
+        function formatMonth(date) {
+            return new Date(date).toLocaleDateString('sv-SE', {
+                year: 'numeric',
+                month: 'short'
+            });
+        }
+
+        // Uppdatera grafen
+        function updateGraph() {
+            const graphContainer = document.getElementById('graphContainer');
+            const completedBooks = books.filter(book => book.status === 'completed' && book.completedDate);
+            
+            if (completedBooks.length === 0) {
+                graphContainer.innerHTML = '<div class="no-data-message">Inga lästa böcker än</div>';
+                return;
+            }
+
+            // Gruppera böcker efter månad
+            const monthlyData = completedBooks.reduce((acc, book) => {
+                const monthKey = book.completedDate.substring(0, 7); // YYYY-MM
+                acc[monthKey] = (acc[monthKey] || 0) + 1;
+                return acc;
+            }, {});
+
+            // Sortera månader kronologiskt
+            const sortedMonths = Object.keys(monthlyData).sort();
+
+            // Hitta högsta värdet för att skala grafen
+            const maxBooks = Math.max(...Object.values(monthlyData));
+            
+            // Skapa graf
+            graphContainer.innerHTML = sortedMonths.map(month => {
+                const count = monthlyData[month];
+                const height = (count / maxBooks) * 180; // Max height 180px
+                return `
+                    <div class="graph-bar" style="height: ${height}px">
+                        <div class="graph-value">${count} ${count === 1 ? 'bok' : 'böcker'}</div>
+                        <div class="graph-label">${formatMonth(month)}</div>
+                    </div>
+                `;
+            }).join('');
         }
 
         // Skapa stjärnbetyg element
@@ -266,49 +526,127 @@
             return container;
         }
 
+        // Lägg till drag and drop handlers
+        function addDragHandlers(element, book, index) {
+            element.draggable = true;
+            
+            element.addEventListener('dragstart', (e) => {
+                draggedBook = { book, index };
+                element.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            element.addEventListener('dragend', () => {
+                element.classList.remove('dragging');
+                document.querySelectorAll('.panel').forEach(panel => {
+                    panel.classList.remove('drag-over');
+                });
+            });
+        }
+
+        // Skapa bok element
+        function createBookElement(book, index) {
+            const li = document.createElement('li');
+            li.className = 'book-item';
+            
+            const bookInfo = document.createElement('div');
+            bookInfo.className = 'book-info';
+            
+            const title = document.createElement('span');
+            title.className = 'book-title';
+            title.textContent = book.title;
+            
+            const meta = document.createElement('div');
+            meta.className = 'book-meta';
+            
+            if (book.status === 'completed') {
+                meta.appendChild(createDateInput(book, index));
+                meta.appendChild(createStarRating(book, index));
+            }
+            
+            bookInfo.appendChild(title);
+            if (meta.children.length > 0) {
+                bookInfo.appendChild(meta);
+            }
+            
+            const statusButton = document.createElement('button');
+            statusButton.className = 'book-status';
+            statusButton.setAttribute('data-status', book.status);
+            statusButton.textContent = getStatusText(book.status);
+            statusButton.onclick = () => toggleStatus(index);
+            
+            li.appendChild(bookInfo);
+            li.appendChild(statusButton);
+
+            // Lägg till drag and drop i panel-vyn
+            if (currentView === 'panel') {
+                addDragHandlers(li, book, index);
+            }
+            
+            return li;
+        }
+
+        // Initiera drag and drop för paneler
+        function initializePanelDragAndDrop() {
+            document.querySelectorAll('.panel').forEach(panel => {
+                panel.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    panel.classList.add('drag-over');
+                });
+
+                panel.addEventListener('dragleave', () => {
+                    panel.classList.remove('drag-over');
+                });
+
+                panel.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    panel.classList.remove('drag-over');
+                    
+                    if (draggedBook) {
+                        const newStatus = panel.dataset.status;
+                        const { index } = draggedBook;
+                        
+                        // Uppdatera status och hantera completion date
+                        if (newStatus === 'completed') {
+                            books[index].completedDate = books[index].completedDate || new Date().toISOString();
+                        } else if (books[index].status === 'completed') {
+                            delete books[index].completedDate;
+                            delete books[index].rating;
+                        }
+                        
+                        books[index].status = newStatus;
+                        draggedBook = null;
+                        renderBooks();
+                    }
+                });
+            });
+        }
+
         // Rendera boklistan
         function renderBooks() {
-            const bookList = document.getElementById('bookList');
-            bookList.innerHTML = '';
+            if (currentView === 'list') {
+                const bookList = document.getElementById('bookList');
+                bookList.innerHTML = '';
+                books.forEach((book, index) => {
+                    bookList.appendChild(createBookElement(book, index));
+                });
+            } else {
+                document.querySelectorAll('.panel-books').forEach(panel => {
+                    panel.innerHTML = '';
+                });
+                
+                books.forEach((book, index) => {
+                    const panel = document.querySelector(`.panel[data-status="${book.status}"] .panel-books`);
+                    panel.appendChild(createBookElement(book, index));
+                });
+                
+                initializePanelDragAndDrop();
+            }
             
-            books.forEach((book, index) => {
-                const li = document.createElement('li');
-                li.className = 'book-item';
-                
-                const bookInfo = document.createElement('div');
-                bookInfo.className = 'book-info';
-                
-                const title = document.createElement('span');
-                title.className = 'book-title';
-                title.textContent = book.title;
-                
-                const meta = document.createElement('div');
-                meta.className = 'book-meta';
-                
-                if (book.status === 'completed') {
-                    meta.appendChild(createDateInput(book, index));
-                    meta.appendChild(createStarRating(book, index));
-                }
-                
-                bookInfo.appendChild(title);
-                if (meta.children.length > 0) {
-                    bookInfo.appendChild(meta);
-                }
-                
-                const statusButton = document.createElement('button');
-                statusButton.className = 'book-status';
-                statusButton.setAttribute('data-status', book.status);
-                statusButton.textContent = getStatusText(book.status);
-                statusButton.onclick = () => toggleStatus(index);
-                
-                li.appendChild(bookInfo);
-                li.appendChild(statusButton);
-                bookList.appendChild(li);
-            });
-            
-            // Spara till localStorage och uppdatera statistik
+            // Spara till localStorage och uppdatera statistik och graf
             localStorage.setItem('books', JSON.stringify(books));
             updateStats();
+            updateGraph();
         }
 
         // Lägg till en ny bok
@@ -366,7 +704,7 @@
         });
 
         // Initial rendering
-        renderBooks();
+        updateView(currentView);
     </script>
 </body>
 </html>
