@@ -4,3 +4,6 @@ import { viewManager } from './viewManager.js';
 document.querySelector('.add-book button').addEventListener('click', () => {
     viewManager.handleAddBook();
 });
+
+// Set initial view
+viewManager.updateView('list');
