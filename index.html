@@ -1,58 +1,58 @@
 <!DOCTYPE html>
 <html lang="sv">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Selmas Böcker</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
     <h1>Selmas Böcker</h1>
-    
+
     <div class="add-book">
-        <input type="text" id="bookInput" placeholder="Lägg till en ny bok...">
-        <button>Lägg till</button>
+      <input type="text" id="bookInput" placeholder="Lägg till en ny bok..." />
+      <button>Lägg till</button>
     </div>
 
     <div class="stats">
-        <span class="stat-item" data-status="unread">
-            <span class="stat-label">Olästa:</span>
-            <span class="stat-value" id="unreadCount">0</span>
-        </span>
-        <span class="stat-item" data-status="reading">
-            <span class="stat-label">Läser:</span>
-            <span class="stat-value" id="readingCount">0</span>
-        </span>
-        <span class="stat-item" data-status="completed">
-            <span class="stat-label">Lästa:</span>
-            <span class="stat-value" id="completedCount">0</span>
-        </span>
+      <span class="stat-item" data-status="unread">
+        <span class="stat-label">Olästa:</span>
+        <span class="stat-value" id="unreadCount">0</span>
+      </span>
+      <span class="stat-item" data-status="reading">
+        <span class="stat-label">Läser:</span>
+        <span class="stat-value" id="readingCount">0</span>
+      </span>
+      <span class="stat-item" data-status="completed">
+        <span class="stat-label">Lästa:</span>
+        <span class="stat-value" id="completedCount">0</span>
+      </span>
     </div>
 
     <div class="view-switcher">
-        <button class="view-button active" data-view="list">Lista</button>
-        <button class="view-button" data-view="panel">Paneler</button>
+      <button class="view-button active" data-view="list">Lista</button>
+      <button class="view-button" data-view="panel">Paneler</button>
     </div>
 
     <div class="list-view active">
-        <ul class="book-list" id="bookList"></ul>
+      <ul class="book-list" id="bookList"></ul>
     </div>
 
     <div class="panel-view">
-        <div class="panel" data-status="unread">
-            <div class="panel-header">Olästa</div>
-            <div class="panel-books"></div>
-        </div>
-        <div class="panel" data-status="reading">
-            <div class="panel-header">Läser</div>
-            <div class="panel-books"></div>
-        </div>
-        <div class="panel" data-status="completed">
-            <div class="panel-header">Klara</div>
-            <div class="panel-books"></div>
-        </div>
+      <div class="panel" data-status="unread">
+        <div class="panel-header">Olästa</div>
+        <div class="panel-books"></div>
+      </div>
+      <div class="panel" data-status="reading">
+        <div class="panel-header">Läser</div>
+        <div class="panel-books"></div>
+      </div>
+      <div class="panel" data-status="completed">
+        <div class="panel-header">Klara</div>
+        <div class="panel-books"></div>
+      </div>
     </div>
 
     <script type="module" src="main.js"></script>
-</body>
+  </body>
 </html>
