@@ -104,7 +104,11 @@ class ViewManager {
 
   addDragHandlers(element, book, index) {
     element.draggable = true;
+    let touchTimeout;
+    let startX, startY;
+    let clone = null;
 
+    // Mouse drag events
     element.addEventListener("dragstart", (e) => {
       this.draggedBook = { book, index };
       element.classList.add("dragging");
@@ -116,6 +120,86 @@ class ViewManager {
       document.querySelectorAll(".panel").forEach((panel) => {
         panel.classList.remove("drag-over");
       });
+    });
+
+    // Touch events
+    element.addEventListener("touchstart", (e) => {
+      const touch = e.touches[0];
+      startX = touch.clientX;
+      startY = touch.clientY;
+
+      touchTimeout = setTimeout(() => {
+        this.draggedBook = { book, index };
+        element.classList.add("dragging");
+        
+        // Create visual feedback clone
+        clone = element.cloneNode(true);
+        clone.style.position = "fixed";
+        clone.style.left = startX - element.offsetWidth / 2 + "px";
+        clone.style.top = startY - element.offsetHeight / 2 + "px";
+        clone.style.opacity = "0.8";
+        clone.style.pointerEvents = "none";
+        document.body.appendChild(clone);
+      }, 200);
+    }, { passive: false });
+
+    element.addEventListener("touchmove", (e) => {
+      if (!this.draggedBook || !clone) return;
+      e.preventDefault();
+
+      const touch = e.touches[0];
+      clone.style.left = touch.clientX - element.offsetWidth / 2 + "px";
+      clone.style.top = touch.clientY - element.offsetHeight / 2 + "px";
+
+      // Find panel under touch point
+      const panels = document.querySelectorAll(".panel");
+      panels.forEach(panel => panel.classList.remove("drag-over"));
+      
+      const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
+      const panel = elementAtPoint?.closest(".panel");
+      if (panel) {
+        panel.classList.add("drag-over");
+      }
+    }, { passive: false });
+
+    element.addEventListener("touchend", (e) => {
+      clearTimeout(touchTimeout);
+      if (!this.draggedBook) return;
+
+      const touch = e.changedTouches[0];
+      const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
+      const panel = elementAtPoint?.closest(".panel");
+
+      if (panel) {
+        const newStatus = panel.dataset.status;
+        const { index } = this.draggedBook;
+        bookManager.updateBookStatus(index, newStatus);
+      }
+
+      if (clone) {
+        clone.remove();
+        clone = null;
+      }
+
+      element.classList.remove("dragging");
+      document.querySelectorAll(".panel").forEach((panel) => {
+        panel.classList.remove("drag-over");
+      });
+      this.draggedBook = null;
+      this.renderBooks();
+    });
+
+    element.addEventListener("touchcancel", () => {
+      clearTimeout(touchTimeout);
+      if (clone) {
+        clone.remove();
+        clone = null;
+      }
+      element.classList.remove("dragging");
+      document.querySelectorAll(".panel").forEach((panel) => {
+        panel.classList.remove("drag-over");
+      });
+      this.draggedBook = null;
     });
   }
 

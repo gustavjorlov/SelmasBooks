@@ -290,6 +290,10 @@ h2 {
     border: 1px solid var(--border-color);
     cursor: move;
     transition: transform 0.2s, box-shadow 0.2s;
+    touch-action: none; /* Prevent scrolling while dragging */
+    -webkit-touch-callout: none; /* Prevent callout during touch */
+    -webkit-user-select: none; /* Prevent text selection during touch */
+    user-select: none;
 }
 
 .panel .book-item:hover {
@@ -300,6 +304,18 @@ h2 {
 .panel .book-item.dragging {
     opacity: 0.5;
     box-shadow: 0 8px 16px var(--shadow-color);
+}
+
+/* Clone styles for touch drag */
+.panel .book-item.touch-clone {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1000;
+    transform-origin: center center;
+    transition: none;
+    width: calc(100% - 30px); /* Account for panel padding */
+    box-shadow: 0 8px 16px var(--shadow-color);
+    opacity: 0.8;
 }
 
 .panel-books {
