@@ -5,16 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Selmas Böcker</title>
     <style>
+        :root {
+            /* Light theme (default) */
+            --bg-primary: #f5f5f5;
+            --bg-secondary: #ffffff;
+            --text-primary: #2c3e50;
+            --text-secondary: #666666;
+            --border-color: #ddd;
+            --shadow-color: rgba(0,0,0,0.1);
+            --button-primary: #3498db;
+            --button-primary-hover: #2980b9;
+            --button-secondary: #eee;
+            --status-unread: #f1c40f;
+            --status-reading: #2ecc71;
+            --status-completed: #3498db;
+            --status-unread-bg: #f1c40f20;
+            --status-reading-bg: #2ecc7120;
+            --status-completed-bg: #3498db20;
+            --star-empty: #ddd;
+            --star-filled: #f1c40f;
+            --panel-hover: #f8f9fa;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #1a1a1a;
+                --bg-secondary: #2d2d2d;
+                --text-primary: #ffffff;
+                --text-secondary: #b3b3b3;
+                --border-color: #404040;
+                --shadow-color: rgba(0,0,0,0.3);
+                --button-primary: #2980b9;
+                --button-primary-hover: #3498db;
+                --button-secondary: #404040;
+                --status-unread: #b3901b;
+                --status-reading: #27ae60;
+                --status-completed: #2980b9;
+                --status-unread-bg: #f1c40f10;
+                --status-reading-bg: #2ecc7110;
+                --status-completed-bg: #3498db10;
+                --star-empty: #404040;
+                --star-filled: #b3901b;
+                --panel-hover: #333333;
+            }
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
         }
 
         h1, h2 {
-            color: #2c3e50;
+            color: var(--text-primary);
             text-align: center;
         }
 
@@ -32,14 +78,16 @@
         .add-book input {
             flex: 1;
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
             font-size: 16px;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
         }
 
         .add-book button {
             padding: 10px 20px;
-            background-color: #3498db;
+            background-color: var(--button-primary);
             color: white;
             border: none;
             border-radius: 4px;
@@ -48,7 +96,7 @@
         }
 
         .add-book button:hover {
-            background-color: #2980b9;
+            background-color: var(--button-primary-hover);
         }
 
         .view-switcher {
@@ -63,14 +111,14 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            background-color: #eee;
-            color: #666;
+            background-color: var(--button-secondary);
+            color: var(--text-secondary);
             font-size: 14px;
             transition: all 0.2s;
         }
 
         .view-button.active {
-            background-color: #3498db;
+            background-color: var(--button-primary);
             color: white;
         }
 
@@ -79,9 +127,9 @@
             justify-content: space-around;
             margin: 20px 0;
             padding: 15px;
-            background-color: white;
+            background-color: var(--bg-secondary);
             border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px var(--shadow-color);
         }
 
         .stat-item {
@@ -93,20 +141,21 @@
         }
 
         .stat-item[data-status="unread"] {
-            background-color: #f1c40f20;
+            background-color: var(--status-unread-bg);
         }
 
         .stat-item[data-status="reading"] {
-            background-color: #2ecc7120;
+            background-color: var(--status-reading-bg);
         }
 
         .stat-item[data-status="completed"] {
-            background-color: #3498db20;
+            background-color: var(--status-completed-bg);
         }
 
         .stat-value {
             font-weight: bold;
             font-size: 1.2em;
+            color: var(--text-primary);
         }
 
         .book-list {
@@ -119,10 +168,10 @@
             align-items: center;
             gap: 10px;
             padding: 15px;
-            background-color: white;
+            background-color: var(--bg-secondary);
             border-radius: 4px;
             margin-bottom: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px var(--shadow-color);
         }
 
         .book-info {
@@ -134,11 +183,12 @@
 
         .book-title {
             font-weight: 500;
+            color: var(--text-primary);
         }
 
         .book-meta {
             font-size: 0.9em;
-            color: #666;
+            color: var(--text-secondary);
             display: flex;
             gap: 15px;
             align-items: center;
@@ -150,22 +200,23 @@
             font-size: 14px;
             cursor: pointer;
             border: none;
-            background-color: #eee;
+            background-color: var(--button-secondary);
             white-space: nowrap;
+            color: var(--text-primary);
         }
 
         .book-status[data-status="unread"] {
-            background-color: #f1c40f;
+            background-color: var(--status-unread);
             color: #000;
         }
 
         .book-status[data-status="reading"] {
-            background-color: #2ecc71;
+            background-color: var(--status-reading);
             color: white;
         }
 
         .book-status[data-status="completed"] {
-            background-color: #3498db;
+            background-color: var(--status-completed);
             color: white;
         }
 
@@ -177,11 +228,11 @@
         .star {
             cursor: pointer;
             font-size: 20px;
-            color: #ddd;
+            color: var(--star-empty);
         }
 
         .star.filled {
-            color: #f1c40f;
+            color: var(--star-filled);
         }
 
         .completion-date {
@@ -192,14 +243,16 @@
 
         .completion-date input[type="date"] {
             padding: 3px 5px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
             font-size: 14px;
-            color: #666;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
         }
 
         .completion-date label {
             white-space: nowrap;
+            color: var(--text-secondary);
         }
 
         /* Panel view styles */
@@ -211,10 +264,10 @@
         }
 
         .panel {
-            background: white;
+            background: var(--bg-secondary);
             padding: 15px;
             border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px var(--shadow-color);
             min-height: 200px;
         }
 
@@ -224,35 +277,36 @@
             padding-bottom: 10px;
             margin-bottom: 15px;
             border-bottom: 2px solid;
+            color: var(--text-primary);
         }
 
         .panel[data-status="unread"] .panel-header {
-            border-color: #f1c40f;
+            border-color: var(--status-unread);
         }
 
         .panel[data-status="reading"] .panel-header {
-            border-color: #2ecc71;
+            border-color: var(--status-reading);
         }
 
         .panel[data-status="completed"] .panel-header {
-            border-color: #3498db;
+            border-color: var(--status-completed);
         }
 
         .panel .book-item {
             box-shadow: none;
-            border: 1px solid #eee;
+            border: 1px solid var(--border-color);
             cursor: move;
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .panel .book-item:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px var(--shadow-color);
         }
 
         .panel .book-item.dragging {
             opacity: 0.5;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 16px var(--shadow-color);
         }
 
         .panel-books {
@@ -260,8 +314,8 @@
         }
 
         .panel.drag-over {
-            background-color: #f8f9fa;
-            box-shadow: 0 0 0 2px #3498db;
+            background-color: var(--panel-hover);
+            box-shadow: 0 0 0 2px var(--button-primary);
         }
 
         /* Hide/Show views */
@@ -376,7 +430,6 @@
         function formatDateForInput(date) {
             return new Date(date).toISOString().split('T')[0];
         }
-
 
         // Skapa stjärnbetyg element
         function createStarRating(book, index) {
