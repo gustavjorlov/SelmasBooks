@@ -202,63 +202,6 @@
             white-space: nowrap;
         }
 
-        .reading-graph {
-            background: white;
-            padding: 20px;
-            border-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-top: 30px;
-        }
-
-        .graph-container {
-            display: flex;
-            align-items: flex-end;
-            gap: 10px;
-            height: 200px;
-            padding: 20px 0;
-            overflow-x: auto;
-        }
-
-        .graph-bar {
-            flex: 0 0 60px;
-            background: #3498db;
-            border-radius: 4px 4px 0 0;
-            position: relative;
-            min-width: 60px;
-            transition: height 0.3s ease;
-        }
-
-        .graph-bar:hover {
-            background: #2980b9;
-        }
-
-        .graph-label {
-            position: absolute;
-            bottom: -25px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .graph-value {
-            position: absolute;
-            top: -20px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .no-data-message {
-            text-align: center;
-            color: #666;
-            padding: 20px;
-            font-style: italic;
-        }
-
         /* Panel view styles */
         .panel-view {
             display: grid;
@@ -363,13 +306,6 @@
         </span>
     </div>
 
-    <div class="reading-graph">
-        <h2>Lästa böcker över tid</h2>
-        <div id="graphContainer" class="graph-container">
-            <div class="no-data-message">Inga lästa böcker än</div>
-        </div>
-    </div>
-
     <div class="view-switcher">
         <button class="view-button active" data-view="list">Lista</button>
         <button class="view-button" data-view="panel">Paneler</button>
@@ -441,49 +377,6 @@
             return new Date(date).toISOString().split('T')[0];
         }
 
-        // Formatera månad för grafen
-        function formatMonth(date) {
-            return new Date(date).toLocaleDateString('sv-SE', {
-                year: 'numeric',
-                month: 'short'
-            });
-        }
-
-        // Uppdatera grafen
-        function updateGraph() {
-            const graphContainer = document.getElementById('graphContainer');
-            const completedBooks = books.filter(book => book.status === 'completed' && book.completedDate);
-            
-            if (completedBooks.length === 0) {
-                graphContainer.innerHTML = '<div class="no-data-message">Inga lästa böcker än</div>';
-                return;
-            }
-
-            // Gruppera böcker efter månad
-            const monthlyData = completedBooks.reduce((acc, book) => {
-                const monthKey = book.completedDate.substring(0, 7); // YYYY-MM
-                acc[monthKey] = (acc[monthKey] || 0) + 1;
-                return acc;
-            }, {});
-
-            // Sortera månader kronologiskt
-            const sortedMonths = Object.keys(monthlyData).sort();
-
-            // Hitta högsta värdet för att skala grafen
-            const maxBooks = Math.max(...Object.values(monthlyData));
-            
-            // Skapa graf
-            graphContainer.innerHTML = sortedMonths.map(month => {
-                const count = monthlyData[month];
-                const height = (count / maxBooks) * 180; // Max height 180px
-                return `
-                    <div class="graph-bar" style="height: ${height}px">
-                        <div class="graph-value">${count} ${count === 1 ? 'bok' : 'böcker'}</div>
-                        <div class="graph-label">${formatMonth(month)}</div>
-                    </div>
-                `;
-            }).join('');
-        }
 
         // Skapa stjärnbetyg element
         function createStarRating(book, index) {
@@ -646,7 +539,6 @@
             // Spara till localStorage och uppdatera statistik och graf
             localStorage.setItem('books', JSON.stringify(books));
             updateStats();
-            updateGraph();
         }
 
         // Lägg till en ny bok
