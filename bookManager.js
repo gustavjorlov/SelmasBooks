@@ -53,12 +53,26 @@ class BookManager {
     this.saveBooks();
   }
 
-  updateCompletionDate(index, date) {
-    this.books[index].completedDate = new Date(date).toISOString();
-    this.saveBooks();
-  }
+    updateCompletionDate(index, date) {
+        this.books[index].completedDate = new Date(date).toISOString();
+        this.saveBooks();
+    }
 
-  getStats() {
+    updateBookTitle(index, newTitle) {
+        if (newTitle.trim()) {
+            this.books[index].title = newTitle.trim();
+            this.saveBooks();
+            return true;
+        }
+        return false;
+    }
+
+    deleteBook(index) {
+        this.books.splice(index, 1);
+        this.saveBooks();
+    }
+
+    getStats() {
     return this.books.reduce(
       (acc, book) => {
         acc[book.status]++;

@@ -324,6 +324,55 @@ h2 {
     display: grid;
 }
 
+/* Book actions */
+.book-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.book-actions button {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 18px;
+    background-color: var(--button-secondary);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.book-actions .edit-button:hover {
+    background-color: var(--button-primary);
+    color: white;
+    transform: scale(1.1);
+}
+
+.book-actions .delete-button {
+    background-color: #e74c3c20;
+    color: #e74c3c;
+}
+
+.book-actions .delete-button:hover {
+    background-color: #e74c3c;
+    color: white;
+    transform: scale(1.1);
+}
+
+.book-title-edit {
+    padding: 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: inherit;
+    font-family: inherit;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    width: 100%;
+}
+
 /* Hide status button in panel view */
 .panel-view .book-status {
     display: none;

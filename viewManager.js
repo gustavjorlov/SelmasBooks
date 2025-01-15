@@ -119,47 +119,114 @@ class ViewManager {
     });
   }
 
-  createBookElement(book, index) {
-    const li = document.createElement("li");
-    li.className = "book-item";
+    createBookTitle(book, index, container) {
+        const titleWrapper = document.createElement('div');
+        titleWrapper.className = 'book-title';
+        titleWrapper.dataset.editing = 'false';
 
-    const bookInfo = document.createElement("div");
-    bookInfo.className = "book-info";
+        const titleSpan = document.createElement('span');
+        titleSpan.textContent = book.title;
+        titleWrapper.appendChild(titleSpan);
 
-    const title = document.createElement("span");
-    title.className = "book-title";
-    title.textContent = book.title;
+        const titleInput = document.createElement('input');
+        titleInput.type = 'text';
+        titleInput.className = 'book-title-edit';
+        titleInput.value = book.title;
+        titleInput.style.display = 'none';
+        titleWrapper.appendChild(titleInput);
 
-    const meta = document.createElement("div");
-    meta.className = "book-meta";
-
-    if (book.status === "completed") {
-      meta.appendChild(this.createDateInput(book, index));
-      meta.appendChild(this.createStarRating(book, index));
+        container.appendChild(titleWrapper);
+        return { titleWrapper, titleInput };
     }
 
-    bookInfo.appendChild(title);
-    if (meta.children.length > 0) {
-      bookInfo.appendChild(meta);
+    createBookActions(book, index, titleElements) {
+        const actions = document.createElement('div');
+        actions.className = 'book-actions';
+
+        const editButton = document.createElement('button');
+        editButton.className = 'edit-button';
+        editButton.innerHTML = '✎';
+        editButton.title = 'Ändra titel';
+        editButton.onclick = (e) => {
+            e.stopPropagation();
+            const { titleWrapper, titleInput } = titleElements;
+            const isEditing = titleWrapper.dataset.editing === 'true';
+
+            if (isEditing) {
+                if (bookManager.updateBookTitle(index, titleInput.value)) {
+                    titleWrapper.dataset.editing = 'false';
+                    titleInput.style.display = 'none';
+                    titleWrapper.querySelector('span').style.display = 'block';
+                    editButton.innerHTML = '✎';
+                    this.renderBooks();
+                }
+            } else {
+                titleWrapper.dataset.editing = 'true';
+                titleInput.style.display = 'block';
+                titleWrapper.querySelector('span').style.display = 'none';
+                titleInput.focus();
+                editButton.innerHTML = '✓';
+            }
+        };
+
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'delete-button';
+        deleteButton.innerHTML = '🗑';
+        deleteButton.title = 'Ta bort bok';
+        deleteButton.onclick = (e) => {
+            e.stopPropagation();
+            if (confirm('Är du säker på att du vill ta bort boken?')) {
+                bookManager.deleteBook(index);
+                this.renderBooks();
+            }
+        };
+
+        actions.appendChild(editButton);
+        actions.appendChild(deleteButton);
+        return actions;
     }
 
-    const statusButton = document.createElement("button");
-    statusButton.className = "book-status";
-    statusButton.setAttribute("data-status", book.status);
-    statusButton.textContent = bookManager.getStatusText(book.status);
-    statusButton.onclick = () => {
-      bookManager.toggleStatus(index);
-      this.renderBooks();
-    };
+    createBookElement(book, index) {
+        const li = document.createElement('li');
+        li.className = 'book-item';
+        
+        const bookInfo = document.createElement('div');
+        bookInfo.className = 'book-info';
+        
+        const titleElements = this.createBookTitle(book, index, bookInfo);
+        
+        const meta = document.createElement('div');
+        meta.className = 'book-meta';
+        
+        if (book.status === 'completed') {
+            meta.appendChild(this.createDateInput(book, index));
+            meta.appendChild(this.createStarRating(book, index));
+        }
+        
+        if (meta.children.length > 0) {
+            bookInfo.appendChild(meta);
+        }
+        
+        const statusButton = document.createElement('button');
+        statusButton.className = 'book-status';
+        statusButton.setAttribute('data-status', book.status);
+        statusButton.textContent = bookManager.getStatusText(book.status);
+        statusButton.onclick = () => {
+            bookManager.toggleStatus(index);
+            this.renderBooks();
+        };
+        
+        const actions = this.createBookActions(book, index, titleElements);
+        
+        li.appendChild(bookInfo);
+        li.appendChild(actions);
+        li.appendChild(statusButton);
 
-    li.appendChild(bookInfo);
-    li.appendChild(statusButton);
-
-    if (this.currentView === "panel") {
-      this.addDragHandlers(li, book, index);
-    }
-
-    return li;
+        if (this.currentView === 'panel') {
+            this.addDragHandlers(li, book, index);
+        }
+        
+        return li;
   }
 
   initializePanelDragAndDrop() {
